@@ -1,8 +1,22 @@
 package com.example.zhuz5918.googlemapsapp;
 
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
+//Apparently the following line is dangerous????
+import android.Manifest;
+import android.util.Log;
 
+import com.google.android.gms.location.LocationCallback;
+//import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -46,5 +60,50 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LatLng miCasa = new LatLng(32.6, -117.16);
         mMap.addMarker(new MarkerOptions().position(miCasa).title("Born here"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(miCasa));
+
+        LocationManager locationManager = (LocationManager)this.getSystemService(Context.LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        String provider = locationManager.getBestProvider(criteria, true);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED) {
+            return;
+        };
+        mMap.setMyLocationEnabled(true);
+
+
     }
 }
+    /**
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            return;
+        };
+        mMap.setMyLocationEnabled(true);**/
+
+
+        /**LocationManager locationManager = (LocationManager)this.getSystemService(Context.LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        String provider = locationManager.getBestProvider(criteria, true);**/
+        /**LocationListener locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                if(location != null){
+                    makeUseofNewLocation(location);
+                };
+            }
+            public void onStatusChanged(String provider, int status, Bundle extras){}
+            public void onProviderEnabled(String provider) {}
+            public void onProviderDisabled(String provider) {}
+        };
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,(long)0,(float)0,locationListener);**/
+        /**Location loc = googleMap.getMyLocation();
+        LatLng currentCoords = new LatLng(loc.getLatitude(), loc.getLongitude());
+        Log.d("My Map", "current location retrieved");
+        mMap.addMarker(new MarkerOptions().position(currentCoords).title("You are here"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(currentCoords));**/
+
+
