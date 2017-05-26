@@ -13,6 +13,7 @@ import android.support.v4.content.ContextCompat;
 //Apparently the following line is dangerous????
 import android.Manifest;
 import android.util.Log;
+import android.view.View;
 
 import com.google.android.gms.location.LocationCallback;
 //import com.google.android.gms.location.LocationListener;
@@ -66,15 +67,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String provider = locationManager.getBestProvider(criteria, true);
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-                        != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+           ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 2);
             return;
         };
         mMap.setMyLocationEnabled(true);
+        Log.d("My Map", "Current Location");
+        }
+
+    public void switchView(View v){
+        if(mMap.getMapType() == GoogleMap.MAP_TYPE_NORMAL){
+            mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+        }
+        else{
+            mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        }
+
+    }
 
 
     }
-}
+
     /**
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED &&
