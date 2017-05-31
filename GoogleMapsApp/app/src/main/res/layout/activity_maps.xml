@@ -5,11 +5,28 @@
     android:orientation="vertical">
 
     <Button
-        android:layout_width="match_parent"
+        android:layout_width="185dp"
         android:layout_height="wrap_content"
         android:text="MAP VIEW"
         android:id="@+id/button_view"
         android:onClick="switchView" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TRACK ME"
+        android:id="@+id/button_view2"
+        android:layout_gravity="right"
+        android:onClick="getLocation" />
+
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:map="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="381dp"
+        android:layout_height="468dp"
+        tools:context="com.example.zhuz5918.googlemapsapp.MapsActivity" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -18,12 +35,4 @@
     </LinearLayout>
 
 
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:map="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/map"
-    android:name="com.google.android.gms.maps.SupportMapFragment"
-    android:layout_width="381dp"
-    android:layout_height="468dp"
-    tools:context="com.example.zhuz5918.googlemapsapp.MapsActivity" />
 </LinearLayout>
