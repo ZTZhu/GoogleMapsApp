@@ -316,21 +316,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         myLocation = locationManager.getLastKnownLocation(provider);
         userLocation = new LatLng(myLocation.getLatitude(), myLocation.getLatitude());
-        CameraUpdate update = CameraUpdateFactory.newLatLngZoom((userLocation, MY_LOC_ZOOM_FACTOR));
+        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(userLocation, MY_LOC_ZOOM_FACTOR);
         if(isGPSEnabled){
             Circle circle = mMap.addCircle(new CircleOptions()
                     .center(userLocation)
                     .radius(1)
                     .strokeColor(Color.RED)
                     .strokeWidth(2));
-        }
-        else if(isNetworkEnabled){
+        };
+        if(isNetworkEnabled){
             Circle circle = mMap.addCircle(new CircleOptions()
                     .center(userLocation)
                     .radius(1)
                     .strokeColor(Color.BLUE)
                     .strokeWidth(2));
-        }
+        };
 
         mMap.animateCamera(update);
     }
