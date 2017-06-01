@@ -7,6 +7,7 @@ import android.location.Location;
 import android.location.LocationListener;
 //import com.google.android.gms.location.LocationListener;
 import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -148,13 +149,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
 
                 }
-                if (isGPSEnabled) {
+                else if (isGPSEnabled) {
                     Log.d("MyMaps", "getLocation: Network enabled - reuqesting location updates");
                     locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME_BETWEEN_UPDATES,
                             MIN_DISTANCE_CHANGE_FOR_UPDATES,
                             locationListenerGPS);
                     Log.d("MyMaps", "getLocation: Apparently getting location via GPS updates works. JK");
-                    Toast.makeText(this, "Using Network", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Using GPS", Toast.LENGTH_SHORT).show();
                 }
             }
         } catch (Exception e) {
@@ -172,11 +173,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             //Remove the network location. Hint: See LocationManager for update removal method.
             Log.d("MyMaps", "locationListenerGPS: onLocationChanged utilized and working");
-            //Toast.makeText(, "LocationListenerGPS onLocationChanged", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "LocationListenerGPS onLocationChanged working", Toast.LENGTH_SHORT).show();
             double lat1 = location.getLatitude();
             double long1 = location.getLongitude();
             addAmarker(lat1, long1);
-
+            if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            //locationManager.removeUpdates(locationListenerNetwork);
+            locationManager.removeUpdates(locationListenerGPS);
 
         }
 
@@ -189,8 +195,48 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             //case LocationProvider.TEMPORARILY_UNAVAILABLE --> request updates from NETWORK_PROVIDER
             //case default --> request updates from NETWORK_PROVIDER
 
+            //Log.d and Toast
+
             Log.d("MyMaps", "locationListenerGPS: onStatusChanged utilized and working");
-            //Toast.makeText(, "LocationListenerGPS onStatusChanged", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "LocationListenerGPS onStatusChanged", Toast.LENGTH_SHORT).show();
+
+            //Switch/case statement
+            switch(status){
+                case LocationProvider.AVAILABLE:
+                        Log.d("MyMaps", "LocationProvider is available");
+                    Toast.makeText(getApplicationContext(), "LocationProvider is available", Toast.LENGTH_SHORT).show();
+                case LocationProvider.OUT_OF_SERVICE:
+                        Log.d("MyMaps", "LocationProvider out of service");
+                        if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                                == PackageManager.PERMISSION_GRANTED &&
+                                ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+
+                        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME_BETWEEN_UPDATES,
+                                MIN_DISTANCE_CHANGE_FOR_UPDATES,
+                                locationListenerNetwork);
+
+
+                case LocationProvider.TEMPORARILY_UNAVAILABLE:
+                    Log.d("MyMaps", "LocationProvider is temporarily unavailable");
+                    if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                            == PackageManager.PERMISSION_GRANTED &&
+                            ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+
+                        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME_BETWEEN_UPDATES,
+                                MIN_DISTANCE_CHANGE_FOR_UPDATES,
+                                locationListenerNetwork);
+
+
+                default:
+                        Log.d("MyMaps", "LocationProvider default");
+                    if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                            == PackageManager.PERMISSION_GRANTED &&
+                            ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+
+                        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME_BETWEEN_UPDATES,
+                                MIN_DISTANCE_CHANGE_FOR_UPDATES,
+                                locationListenerNetwork);
+            }
 
 
         }
@@ -213,19 +259,33 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             // Relaunch the network provider requestLocationUpdates(NETWORK_PROVIDER)
 
+            //Log.d and Toast
             Log.d("MyMaps", "locationListenerNETWORK: onLocationChanged utilized and working");
-            //Toast.makeText(, "LocationListenerGPS onStatusChanged", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "LocationListenerNETWORK onStatusChanged", Toast.LENGTH_SHORT).show();
+
+            //Dropping a marker
             double lat2 = location.getLatitude();
             double long2 = location.getLongitude();
             addAmarker(lat2, long2);
-            
+
+
+            //The relaunching????
+            if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME_BETWEEN_UPDATES,
+                        MIN_DISTANCE_CHANGE_FOR_UPDATES,
+                        locationListenerNetwork);
+
+
         }
 
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras) {
             //output message in Log.d and Toast
-            Log.d("MyMaps", "locationListenerGPS: onStatusChanged utilized and working");
-            //Toast.makeText(, "LocationListenerGPS onStatusChanged", Toast.LENGTH_SHORT).show();
+            Log.d("MyMaps", "locationListenerNETWORK: onStatusChanged utilized and working");
+            Toast.makeText(getApplicationContext(), "LocationListenerNETWORK onStatusChanged", Toast.LENGTH_SHORT).show();
 
         }
 
