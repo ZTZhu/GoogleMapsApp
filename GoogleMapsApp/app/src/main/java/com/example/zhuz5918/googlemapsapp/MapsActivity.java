@@ -38,7 +38,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private LocationManager locationManager;
     private LatLng userLocation;
     private Location myLocation;
-    private static final int MY_LOC_ZOOM_FACTOR = 7;
+    private static final float MY_LOC_ZOOM_FACTOR = 17.0f;
     private boolean isGPSEnabled = false;
     private boolean isNetworkEnabled = false;
     private boolean canGetLocation = false;
@@ -147,7 +147,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             locationListenerGPS);
                     Log.d("MyMaps", "getLocation: Apparently getting location via GPS updates works. JK");
                     Toast.makeText(this, "Using GPS", Toast.LENGTH_SHORT).show();
-                } else if (isNetworkEnabled) {
+                }
+                if (isNetworkEnabled) {
                     Log.d("MyMaps", "getLocation: Network enabled - requesting location updates");
                     if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                             == PackageManager.PERMISSION_GRANTED &&
@@ -317,22 +318,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         myLocation = locationManager.getLastKnownLocation(provider);
         userLocation = new LatLng(myLocation.getLatitude(), myLocation.getLatitude());
         CameraUpdate update = CameraUpdateFactory.newLatLngZoom(userLocation, MY_LOC_ZOOM_FACTOR);
-        if(isGPSEnabled){
+        /**if(isGPSEnabled){
             Circle circle = mMap.addCircle(new CircleOptions()
                     .center(userLocation)
                     .radius(1)
-                    .strokeColor(Color.RED)
+                    .strokeColor(Color.GREEN)
                     .strokeWidth(2));
+            Log.d("MyMaps", "Marker Dropper for GPS accessed");
         };
         if(isNetworkEnabled){
             Circle circle = mMap.addCircle(new CircleOptions()
                     .center(userLocation)
                     .radius(1)
-                    .strokeColor(Color.BLUE)
+                    .strokeColor(Color.BLACK)
                     .strokeWidth(2));
+            Log.d("MyMaps", "Marker Dropper for Network accessed");
         };
 
-        mMap.animateCamera(update);
+        mMap.animateCamera(update);**/
+        Circle circle = mMap.addCircle(new CircleOptions()
+                .center(userLocation)
+                .radius(1)
+                .strokeColor(Color.GREEN)
+                .strokeWidth(2));
+        Log.d("MyMaps", "Marker Dropper for GPS accessed");
     }
 
 }
