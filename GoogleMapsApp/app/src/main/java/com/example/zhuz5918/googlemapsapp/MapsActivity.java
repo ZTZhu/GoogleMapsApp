@@ -38,7 +38,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private LocationManager locationManager;
     private LatLng userLocation;
     private Location myLocation;
-    private static final float MY_LOC_ZOOM_FACTOR = 17.0f;
+    private static final float MY_LOC_ZOOM_FACTOR = 20.0f;
     private boolean isGPSEnabled = false;
     private boolean isNetworkEnabled = false;
     private boolean canGetLocation = false;
@@ -141,7 +141,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             } else {
                 this.canGetLocation = true;
                 if (isGPSEnabled) {
-                    Log.d("MyMaps", "getLocation: Network enabled - reuqesting location updates");
+                    Log.d("MyMaps", "getLocation: GPS enabled - requesting location updates");
                     locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME_BETWEEN_UPDATES,
                             MIN_DISTANCE_CHANGE_FOR_UPDATES,
                             locationListenerGPS);
@@ -181,7 +181,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             //Remove the network location. Hint: See LocationManager for update removal method.
             Log.d("MyMaps", "locationListenerGPS: onLocationChanged utilized and working");
             Toast.makeText(getApplicationContext(), "LocationListenerGPS onLocationChanged working", Toast.LENGTH_SHORT).show();
-            addAmarker(LocationManager.NETWORK_PROVIDER);
+            addAmarker(LocationManager.GPS_PROVIDER);
             if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                     ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 return;
@@ -316,32 +316,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             return;
         }
         myLocation = locationManager.getLastKnownLocation(provider);
-        userLocation = new LatLng(myLocation.getLatitude(), myLocation.getLatitude());
+        userLocation = new LatLng(myLocation.getLatitude(),myLocation.getLongitude());
         CameraUpdate update = CameraUpdateFactory.newLatLngZoom(userLocation, MY_LOC_ZOOM_FACTOR);
-        /**if(isGPSEnabled){
+
+        if(isGPSEnabled){
             Circle circle = mMap.addCircle(new CircleOptions()
                     .center(userLocation)
                     .radius(1)
                     .strokeColor(Color.GREEN)
                     .strokeWidth(2));
+            mMap.animateCamera(update);
             Log.d("MyMaps", "Marker Dropper for GPS accessed");
-        };
-        if(isNetworkEnabled){
+        }
+        else if(isNetworkEnabled){
             Circle circle = mMap.addCircle(new CircleOptions()
                     .center(userLocation)
                     .radius(1)
                     .strokeColor(Color.BLACK)
                     .strokeWidth(2));
+            mMap.animateCamera(update);
             Log.d("MyMaps", "Marker Dropper for Network accessed");
         };
 
-        mMap.animateCamera(update);**/
-        Circle circle = mMap.addCircle(new CircleOptions()
-                .center(userLocation)
-                .radius(1)
-                .strokeColor(Color.GREEN)
-                .strokeWidth(2));
-        Log.d("MyMaps", "Marker Dropper for GPS accessed");
+        mMap.animateCamera(update);
+
     }
 
 }
