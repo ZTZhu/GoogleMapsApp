@@ -354,7 +354,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    public void searchPlaces(View view) {
+    /**public void searchPlaces(View view) {
         EditText locationSearch = (EditText) findViewById(R.id.searchField);
         String location = locationSearch.getText().toString();
         List<Address> addressList = null;
@@ -371,6 +371,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
             mMap.addMarker(new MarkerOptions().position(latLng).title("Search Results"));
             mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+        }
+    }**/
+    public void searchPlaces(View view) {
+        EditText locationSearch = (EditText) findViewById(R.id.searchField);
+        String location = locationSearch.getText().toString();
+        List<Address> addressList = null;
+
+        if (location != null || !location.equals("")) {
+            Geocoder geocoder = new Geocoder(this);
+            try {
+                addressList = geocoder.getFromLocationName(location, 1);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Address address = addressList.get(0);
+            if (Math.abs(address.getLatitude() - myLocation.getLatitude()) <= (5 * 0.01666) && Math.abs(address.getLatitude() - myLocation.getLatitude()) <= 5 * 0.01666) {
+                LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+                mMap.addMarker(new MarkerOptions().position(latLng).title("Search Results"));
+                mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+            } else if (address != null) {
+                Toast.makeText(this, "Not Within 5 Mile Radius", Toast.LENGTH_SHORT).show();
+            }
+
         }
     }
 
