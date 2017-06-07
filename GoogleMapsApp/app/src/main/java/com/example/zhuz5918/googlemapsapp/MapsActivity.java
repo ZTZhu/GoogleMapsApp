@@ -25,7 +25,9 @@ import android.widget.Toast;
 //import com.google.android.gms.identity.intents.Address;
 import com.google.android.gms.location.LocationCallback;
 //import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -40,14 +42,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
+{
 
     private GoogleMap mMap;
     private LocationManager locationManager;
+    GoogleApiClient mGoogleApiClient;
     private LatLng userLocation;
     private Location myLocation;
     private static final float MY_LOC_ZOOM_FACTOR = 20.0f;
-    private boolean tracked = false;
+    private boolean tracked = true;
     private boolean isGPSEnabled = false;
     private boolean isNetworkEnabled = false;
     private boolean canGetLocation = false;
@@ -189,6 +193,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             e.printStackTrace();
         }
     }
+    public void stopTracking(View v) {
+        Log.d("MyMaps", "Tracking Off");
+        isGPSEnabled = !isGPSEnabled;
+        isNetworkEnabled = !isNetworkEnabled;
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        locationManager.removeUpdates(locationListenerNetwork);
+        locationManager.removeUpdates(locationListenerGPS);
+        Toast.makeText(this, "Tracking Off", Toast.LENGTH_SHORT).show();
+    }
+
+
 
 
     android.location.LocationListener locationListenerGPS = new LocationListener() {
@@ -319,39 +336,47 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         }
     };
+    /**protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+        mGoogleApiClient.connect();
+    }**/
 
-    public void track(View v) {
+    /**public void track(View v) {
         tracked = true;
         if (tracked == true) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
-                return;
-            }
-            mMap.setMyLocationEnabled(true);
             Toast.makeText(MapsActivity.this, "Currently getting your location", Toast.LENGTH_SHORT).show();
             getLocation(v);
             tracked = false;
         }
         else if (tracked == false) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
-                return;
-            }
-            mMap.setMyLocationEnabled(false);
             Toast.makeText(MapsActivity.this, "NOT getting your location", Toast.LENGTH_SHORT).show();
         }
+    }**/
+    protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks((GoogleApiClient.ConnectionCallbacks) this)
+                .addOnConnectionFailedListener((GoogleApiClient.OnConnectionFailedListener) this)
+                .addApi(LocationServices.API)
+                .build();
+        mGoogleApiClient.connect();
+    }
+
+    public void track(View view){
+        if(tracked){
+            Toast.makeText(MapsActivity.this, "Currently getting your location", Toast.LENGTH_SHORT).show();
+            getLocation(view);
+            tracked = false;
+        }
+        else if(!tracked){
+            Toast.makeText(MapsActivity.this, "Currently NOT getting your location", Toast.LENGTH_SHORT).show();
+            stopTracking(view);
+            tracked = true;
+
+        }
+
     }
 
     /**public void searchPlaces(View view) {
@@ -378,22 +403,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String location = locationSearch.getText().toString();
         List<Address> addressList = null;
 
-        if (location != null || !location.equals("")) {
+        if (!location.equals("")) {
             Geocoder geocoder = new Geocoder(this);
             try {
                 addressList = geocoder.getFromLocationName(location, 1);
 
             } catch (IOException e) {
                 e.printStackTrace();
+                Log.d("MyMaps", "Location not found");
+                Toast.makeText(this, "Not Found", Toast.LENGTH_SHORT).show();
+                return;
             }
             Address address = addressList.get(0);
-            if (Math.abs(address.getLatitude() - myLocation.getLatitude()) <= (5 * 0.01666) && Math.abs(address.getLatitude() - myLocation.getLatitude()) <= 5 * 0.01666) {
-                LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
-                mMap.addMarker(new MarkerOptions().position(latLng).title("Search Results"));
-                mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
-            } else if (address != null) {
-                Toast.makeText(this, "Not Within 5 Mile Radius", Toast.LENGTH_SHORT).show();
-            }
+
+                if (Math.abs(address.getLatitude() - myLocation.getLatitude()) <= (5 * 0.01666) && Math.abs(address.getLatitude() - myLocation.getLatitude()) <= 5 * 0.01666) {
+                    LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+                    mMap.addMarker(new MarkerOptions().position(latLng).title("Search Results"));
+                    mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+                } else if (address != null) {
+                    Toast.makeText(this, "Not Within 5 Mile Radius", Toast.LENGTH_SHORT).show();
+                }
+
 
         }
     }
@@ -446,7 +476,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 mMap.animateCamera(update);
                 Log.d("MyMaps", "Marker Dropper for GPS accessed");
             }
-            else if(myColor == false){
+            else if(!myColor){
                 Circle circle = mMap.addCircle(new CircleOptions()
                         .center(userLocation)
                         .radius(1)
