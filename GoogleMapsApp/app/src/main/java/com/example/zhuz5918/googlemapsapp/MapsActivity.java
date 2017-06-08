@@ -402,12 +402,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         EditText locationSearch = (EditText) findViewById(R.id.searchField);
         String location = locationSearch.getText().toString();
         List<Address> addressList = null;
-
+        List<Address> nearAddresses = null;
         if (!location.equals("")) {
             Geocoder geocoder = new Geocoder(this);
             try {
                 addressList = geocoder.getFromLocationName(location, 1);
-
+                nearAddresses = geocoder.getFromLocationName(locationSearch.getText().toString(), 25, myLocation.getLatitude() - 0.07246377, myLocation.getLongitude() - 0.09157509, myLocation.getLatitude() + 0.07246377, myLocation.getLongitude() + 0.09157509);
             } catch (IOException e) {
                 e.printStackTrace();
                 //Log.d("MyMaps", "Location not found");
@@ -415,14 +415,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 return;
             }
             if(addressList.size() != 0) {
-                for (Address address : addressList) {
-                    if (Math.abs(address.getLatitude() - myLocation.getLatitude()) <= (5 * 0.01666) && Math.abs(address.getLatitude() - myLocation.getLatitude()) <= 5 * 0.01666) {
+                for (Address address : nearAddresses) {
+                    LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+                    mMap.addMarker(new MarkerOptions().position(latLng).title("Search Results"));
+                    mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+                    /**if (Math.abs(address.getLatitude() - myLocation.getLatitude()) <= (5 * 0.01666) && Math.abs(address.getLatitude() - myLocation.getLatitude()) <= 5 * 0.01666) {
                         LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
                         mMap.addMarker(new MarkerOptions().position(latLng).title("Search Results"));
                         mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
-                    }
+                    }**/
                 }
-                Toast.makeText(this, "Not Within 5 Mile Radius", Toast.LENGTH_SHORT).show();
+                if(nearAddresses.size() == 0) {
+                    Toast.makeText(this, "Not Within 5 Mile Radius", Toast.LENGTH_SHORT).show();
+                }
             }
             else{
                 Log.d("MyMaps", "Location not found");
