@@ -410,25 +410,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             } catch (IOException e) {
                 e.printStackTrace();
-                Log.d("MyMaps", "Location not found");
-                Toast.makeText(this, "Not Found", Toast.LENGTH_SHORT).show();
+                //Log.d("MyMaps", "Location not found");
+                //Toast.makeText(this, "Not Found", Toast.LENGTH_SHORT).show();
                 return;
             }
-            Address address = addressList.get(0);
-
-                if (Math.abs(address.getLatitude() - myLocation.getLatitude()) <= (5 * 0.01666) && Math.abs(address.getLatitude() - myLocation.getLatitude()) <= 5 * 0.01666) {
-                    LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
-                    mMap.addMarker(new MarkerOptions().position(latLng).title("Search Results"));
-                    mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
-                } else if (address != null) {
-                    Toast.makeText(this, "Not Within 5 Mile Radius", Toast.LENGTH_SHORT).show();
+            if(addressList.size() != 0) {
+                for (Address address : addressList) {
+                    if (Math.abs(address.getLatitude() - myLocation.getLatitude()) <= (5 * 0.01666) && Math.abs(address.getLatitude() - myLocation.getLatitude()) <= 5 * 0.01666) {
+                        LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+                        mMap.addMarker(new MarkerOptions().position(latLng).title("Search Results"));
+                        mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+                    }
                 }
+                Toast.makeText(this, "Not Within 5 Mile Radius", Toast.LENGTH_SHORT).show();
+            }
+            else{
+                Log.d("MyMaps", "Location not found");
+                Toast.makeText(this, "Not Found", Toast.LENGTH_SHORT).show();
+            }
 
 
         }
     }
-
-
     public void addAmarker(String provider) {
         LatLng userLocation = null;
 
